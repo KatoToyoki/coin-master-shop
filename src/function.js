@@ -1,41 +1,106 @@
-function getNotSoldItems(){
+import { child, push, ref, update } from 'firebase/database';
+import React, { useEffect, useState } from 'react';
+import { database } from './backend/databaseCtl/firebase';
+import GetDatas from "./backend/databaseCtl/getData";
+import { databaseInputWithHash } from './backend/databaseCtl/setData';
+
+export function GetNotSoldItems() {
     /*
      * 回傳未被賣掉的商品陣列
      */
+    let coinlist = GetDatas({ path: "items" })
+    const [ansList, setAnsList] = useState([]);
+    useEffect(() => {
+        Object.entries(coinlist).map(
+            ([key, value]) => {
+                //console.log(value['sold'])
+                Object.entries(value).map(
+                    ([key1, value1]) => {
+                        if (key1 == "sold" && value1 == false) {
+                            setAnsList(value)
+
+                        }
+
+                    });
+            }
+        )
+
+    })
+    return ansList
+
+
 }
 
-function getItemOrFalse(item_id){
+export function GetItemOrFalse(item_id) {
     /*
      * 回傳商品json
      * 如果sold為true，則回傳False
      */
+    let coinlist = GetDatas({ path: "items" })
+    const [ansList, setAnsList] = useState([]);
+
+    useEffect(() => {
+        Object.entries(coinlist).map(
+            ([key, value]) => {
+                if (value['item_id'] == item_id && value['sold'] == false) {
+                    setAnsList(value)
+                } else {
+                    setAnsList(false)
+                }
+            }
+        )
+        //ItemSold(item_id)
+    })
+
+    return ansList
+
+
 }
 
 
-function itemSold(item_id){
+export function ItemSold(item_id) {
     /*
      * 修改商品的sold成true
      */
+    let coinlist = GetDatas({ path: "items" })
+    const [ansList, setAnsList] = useState([]);
+
+    useEffect(() => {
+        Object.entries(coinlist).map(
+            ([key, value]) => {
+                if (value['item_id'] == item_id && value['sold'] == false) {
+                    const updates = {};
+                    updates['/items/' + key + '/sold'] = true;
+                    update(ref(database), updates);
+                    setAnsList(value)
+                }
+            }
+        )
+    })
+    return ansList
+
 }
 
 
-function addItem(new_item){
+export function AddItem(new_item) {
     //new_item為商品json
     /*
      * 在資料庫新增新的商品
      */
+    databaseInputWithHash('items', new_item)
 }
 
 
-function addTrade(new_trade){
+export function AddTrade(new_trade) {
     //new_item為交易json
     /*
      * 在資料庫新增新的交易流水
      */
+    databaseInputWithHash('trade', new_trade)
 }
 
 
-function addToCart(customer_id,item_id){
+function addToCart(customer_id, item_id) {
     /*
      * 把物品加入顧客的購物車
      *
@@ -44,7 +109,7 @@ function addToCart(customer_id,item_id){
      * */
 }
 
-function removeFromCart(customer_id,item_id){
+function removeFromCart(customer_id, item_id) {
     /*
      * 把物品從顧客的購物車移除
      *
@@ -52,7 +117,7 @@ function removeFromCart(customer_id,item_id){
 }
 
 
-function getCart(customer_id){
+function getCart(customer_id) {
     /*
      * 回傳商品陣列
      *
@@ -61,59 +126,60 @@ function getCart(customer_id){
 }
 
 
-function getCustomerCount(){
+export function getCustomerCount() {
     /*
      * 回傳customer_count
      */
+    return GetDatas({ path: '/customer_count' })
 }
-function customerCountAddOne(){
+function customerCountAddOne() {
     /*
      * 把資料庫的customer_count加1
      */
 }
 
 
-function parseCookie(){
+function parseCookie() {
     let cookieObj = {};
     let cookieAry = document.cookie.split(';');
-    for(let i=0,l=cookieAry.length; i<l; ++i) {
+    for (let i = 0, l = cookieAry.length; i < l; ++i) {
         let cookie = cookieAry[i].trim().split('=');
         cookieObj[cookie[0]] = cookie[1];
     }
     return cookieObj;
 }
 
-function getCookieByName(name){
+function getCookieByName(name) {
     let value = parseCookie()[name];
-    if(value){
+    if (value) {
         value = decodeURIComponent(value);
     }
     return value;
 }
 
-function getCustomerIdOrFalse(){
+function getCustomerIdOrFalse() {
     let user = getCookieByName('user');
-    if(user){
-        return user/17;
+    if (user) {
+        return user / 17;
     }
-    else{
+    else {
         return false;
     }
 }
 
 
-function newVisit(){
-    if(getCustomerIdOrFalse() === false){
+function newVisit() {
+    if (getCustomerIdOrFalse() === false) {
         console.log("new visit");
         okYourAreNewVisitor();
     }
-    else{
+    else {
         console.log("not new visit");
     }
 }
 
 
-function okYourAreNewVisitor(){
+function okYourAreNewVisitor() {
     customerCountAddOne();
-    document.cookie = 'user='+encodeURIComponent(getCustomerCount()*17);
+    document.cookie = 'user=' + encodeURIComponent(getCustomerCount() * 17);
 }

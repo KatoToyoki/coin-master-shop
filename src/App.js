@@ -1,23 +1,20 @@
 import logo from './logo.svg';
 import './App.css';
+import GetDatas from './backend/databaseCtl/getData';
+import { AddItem, getCustomerCount, GetItemOrFalse, GetNotSoldItems, ItemSold } from './function';
+import SetCoin from './backend/databaseCtl/setCoin';
 
 function App() {
+  let data = ItemSold(0);
+
+
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {Object.entries(data).map(
+        ([key, value]) => <p>{key}: {value}</p>
+      )}
+      <SetCoin />
     </div>
   );
 }
