@@ -16,9 +16,9 @@ root.render(
     {/* <Main /> */}
     {/* <Login /> */}
     {/* <Register /> */}
-    {/* <About /> */}
+    <About />
     {/* <Product /> */}
-    <Coin />
+    {/* <Coin /> */}
   </React.StrictMode>
 );
 
